@@ -21,6 +21,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(()=> {
+    console.log(tokenDecode)
     if (tokenDecode) {
       router.push('/')
     }
