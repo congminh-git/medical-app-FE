@@ -4,19 +4,27 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Link } from "@heroui/link";
 import { Switch } from "@heroui/switch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { login } from "@/services/auth/functions";
 import { useRouter } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
+  const tokenDecode = useAuth();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  useEffect(()=> {
+    if (tokenDecode) {
+      router.push('/')
+    }
+  },[tokenDecode])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
