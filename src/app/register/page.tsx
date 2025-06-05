@@ -19,14 +19,14 @@ export default function LoginPage() {
     phone_number: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    confirm_password: "",
     role: "patient",
     image: ""
   });
   const [imageData, setImageData] = useState("");
 
   const handleSubmitData = async () => {
-    if (registerData.password !== registerData.confirmPassword) {
+    if (registerData.password !== registerData.confirm_password) {
       alert("Mật khẩu không khớp");
       return;
     } else {
@@ -187,11 +187,11 @@ export default function LoginPage() {
                 placeholder="Nhập lại mật khẩu"
                 size={"lg"}
                 variant="bordered"
-                value={registerData.confirmPassword}
+                value={registerData.confirm_password}
                 onChange={(e)=>{
                   setRegisterData({
                   ...registerData,
-                    confirmPassword: e.target.value,
+                    confirm_password: e.target.value,
                   });
                 }}
                 endContent={

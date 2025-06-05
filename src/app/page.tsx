@@ -69,34 +69,44 @@ function HomeContent() {
   };
 
   const handleFetchData = async () => {
-    const newArticles = await getNewArticles();
-    setNewArticles(newArticles);
-    const topArticles = await getTopArticles();
-    setTopArticles(topArticles);
-    const doctor = await getTopNewDoctors();
-    setTopNewDoctors(doctor);
-    const allSpecialties = await getAllSpecialties();
-    setAllSpecialties(allSpecialties);
-    const allDisease = await getAllDiseaseTypes();
-    setAllDisease(allDisease);
-    const allSymptom = await getAllSymptoms();
-    setAllSymptom(allSymptom);
-    const masterData = await getMasterData();
-    setMasterData(masterData);
+    try {
+      const [
+        newArticles,
+        topArticles,
+        doctor,
+        allSpecialties,
+        allDisease,
+        allSymptom,
+        masterData,
+      ] = await Promise.all([
+        getNewArticles(),
+        getTopArticles(),
+        getTopNewDoctors(),
+        getAllSpecialties(),
+        getAllDiseaseTypes(),
+        getAllSymptoms(),
+        getMasterData(),
+      ]);
 
-    if (searchParams.get("diseases") || searchParams.get("symptoms")) {
-      const careArticles = await getCareArticles(
-        searchParams.get("diseases"),
-        searchParams.get("symptoms")
-      );
+      setNewArticles(newArticles);
+      setTopArticles(topArticles);
+      setTopNewDoctors(doctor);
+      setAllSpecialties(allSpecialties);
+      setAllDisease(allDisease);
+      setAllSymptom(allSymptom);
+      setMasterData(masterData);
+
+      const careArticles = searchParams.get("diseases") || searchParams.get("symptoms")
+        ? await getCareArticles(searchParams.get("diseases"), searchParams.get("symptoms"))
+        : await getRandomArticles();
+
       setCareArticles(careArticles);
       console.log("care: " + careArticles);
-    } else {
-      const careArticles = await getRandomArticles();
-      setCareArticles(careArticles);
-    }
 
-    setFetched(true);
+      setFetched(true);
+    } catch (error) {
+      console.error("Failed to fetch data", error);
+    }
   };
 
   useEffect(() => {
@@ -136,7 +146,6 @@ function HomeContent() {
   return (
     <>
       <Header />
-
       {/* Banner */}
       <section className="h-screen w-full">
         <div className="w-full h-full flex justify-center items-center bg-[url('https://www.capgemini.com/wp-content/uploads/2023/03/Technology-advances-in-healthcare-Banner-1.jpg')] bg-cover">
