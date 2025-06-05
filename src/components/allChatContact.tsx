@@ -37,25 +37,28 @@ const AllChatContact = () => {
   };
 
   useEffect(() => {
-    if (tokenDecode && tokenDecode.id) {
-      handleFetchData();
-    }
-  }, [tokenDecode]);
+    let timeoutId: NodeJS.Timeout;
+    let intervalId: NodeJS.Timeout;
 
-  useEffect(() => {
     if (
       tokenDecode &&
       tokenDecode.id &&
       tokenDecode.role !== "admin" &&
       tokenDecode.role !== "manage" &&
-      pathName !== "/login" && 
-      pathName!== "/register"
+      pathName !== "/login" &&
+      pathName !== "/register"
     ) {
-      const interval = setInterval(() => {
-        handleFetchUnread();
-      }, 1000);
+      timeoutId = setTimeout(() => {
+        handleFetchData(); // Gọi data sau 10s
+        intervalId = setInterval(() => {
+          handleFetchUnread();
+        }, 3000);
+      }, 10000); // 10 giây sau khi render
 
-      return () => clearInterval(interval);
+      return () => {
+        clearTimeout(timeoutId);
+        clearInterval(intervalId);
+      };
     }
   }, [tokenDecode, pathName]);
 
@@ -103,7 +106,6 @@ const AllChatContact = () => {
                         }}
                       ></div>
                     </button>
-                    {/* Tooltip */}
                     <div className="absolute top-full mt-1 px-2 py-1 text-xs text-white bg-black rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
                       {contact.full_name}
                     </div>
