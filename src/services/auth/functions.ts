@@ -15,9 +15,6 @@ export const login = async ({ email, password }: LoginParams) => {
     });
 
     if (!response.success) {
-      toast.error("Đăng nhập thất bại", {
-        position: "bottom-right",
-      });
       throw new Error(response.error || "Đăng nhập thất bại");
     } else {
       const decoded = jwtDecode(response.data.data.token);
@@ -31,15 +28,9 @@ export const login = async ({ email, password }: LoginParams) => {
         console.warn("exp không hợp lệ hoặc token đã hết hạn.");
       }
     }
-
-    toast.success("Đăng nhập thành công", {
-      position: "bottom-right",
-    });
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -58,9 +49,7 @@ export const register = async (body:any) => {
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -71,17 +60,13 @@ export const getAllUser = async () => {
     const response: any = await apiRequest(`/users`, "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -92,9 +77,7 @@ export const putUserImage = async (id: number, body: {image: string}) => {
     const response: any = await apiRequest(`/users/${id}/image`, "PUT", body);
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -103,9 +86,7 @@ export const putUserImage = async (id: number, body: {image: string}) => {
     });
     return response.data.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -116,17 +97,13 @@ export const getUserInfo = async (id:number) => {
     const response: any = await apiRequest(`/users/${id}`, "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -139,17 +116,13 @@ export const getUserImage = async (id:number) => {
     const response: any = await apiRequest(`/users/image/${id}`, "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -160,9 +133,7 @@ export const updateUserInfo = async (id:number, body:any) => {
     const response: any = await apiRequest(`/users/${id}`, "PUT", body);
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     } else {
       toast.success("Lưu thay đổi thành công!", {
@@ -172,9 +143,7 @@ export const updateUserInfo = async (id:number, body:any) => {
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -185,9 +154,7 @@ export const addUser = async (body:any) => {
     const response: any = await apiRequest(`/users`, "POST", body);
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     } else {
       toast.success("Tạo user thành công!", {
@@ -197,9 +164,7 @@ export const addUser = async (body:any) => {
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -210,9 +175,7 @@ export const deleteUser = async (id:number) => {
     const response: any = await apiRequest(`/users/${id}`, "DELETE"); 
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -221,9 +184,7 @@ export const deleteUser = async (id:number) => {
     });
     return response.data.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }

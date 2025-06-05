@@ -32,9 +32,7 @@ export const getMessagesBetweenUsers = async (
     );
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -54,9 +52,7 @@ export const getMessagesBetweenUsers = async (
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -67,17 +63,13 @@ export const getAllUnreadMessages = async (id: number) => {
     const response: any = await apiRequest(`/messages/unread/${id}`, "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -88,17 +80,13 @@ export const getAllMessagesContact = async (id: number) => {
     const response: any = await apiRequest(`/messages/contact/${id}`, "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -112,17 +100,13 @@ export const getLatestMessages = async (userId1: number, userId2: number) => {
     );
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }

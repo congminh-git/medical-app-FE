@@ -8,17 +8,11 @@ export const createConsultation = async (body: {consultations: any, prescription
     const response: any = await apiRequest("/consultations", "POST", body);
 
     if (!response.success) {
-          toast.error("Something went wrong", {
-            position: "bottom-right",
-          });
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-        toast.error("Something went wrong", {
-          position: "bottom-right",
-        });
     console.error("Lỗi đăng nhập:", error);
     return null;
   }

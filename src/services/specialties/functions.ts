@@ -8,17 +8,12 @@ export const getAllSpecialties = async () => {
     const response: any = await apiRequest("/specialties", "GET");
 
     if (!response.success) {
-          toast.error("Something went wrong", {
-            position: "bottom-right",
-          });
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -29,17 +24,13 @@ export const deleteSpecialtie = async (id: number) => {
     const response: any = await apiRequest(`/specialties/${id}`, "DELETE");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -50,9 +41,7 @@ export const addSpecialtie = async (body: any) => {
     const response: any = await apiRequest(`/specialties`, "POST", body);
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -61,9 +50,7 @@ export const addSpecialtie = async (body: any) => {
     });
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -74,9 +61,7 @@ export const updateSpecialtieInfo = async (id: number, body: any) => {
     const response: any = await apiRequest(`/specialties/${id}`, "PUT", body);
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -85,9 +70,7 @@ export const updateSpecialtieInfo = async (id: number, body: any) => {
     });
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }

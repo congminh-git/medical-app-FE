@@ -187,7 +187,7 @@ const PaymentModal = ({ totalCost, userID, doctorID, onClose, setPaymentStatus }
               className="mt-px font-light text-gray-700 cursor-pointer select-none"
               htmlFor="html"
             >
-              Thẻ tín dụng - VJPH
+              Credit Card
             </label>
           </div>
           <div className="flex items-center border-b my-2">

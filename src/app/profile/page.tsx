@@ -5,7 +5,11 @@ import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getUserInfo, putUserImage, updateUserInfo } from "@/services/auth/functions";
+import {
+  getUserInfo,
+  putUserImage,
+  updateUserInfo,
+} from "@/services/auth/functions";
 import { Button } from "@heroui/button";
 import { useRouter } from "next/navigation";
 import { getAllSpecialties } from "@/services/specialties/functions";
@@ -79,10 +83,10 @@ const ProfilePage = () => {
   const [userAppointment, setUserAppointment] = useState<any>([]);
   const [allPaymentTransaction, setAllPaymentTransaction] = useState([]);
   const [medicineTypes, setMedicineTypes] = useState<any>([]);
-  const [prescriptions, setPrescriptions] = useState<any>([]);
+  const [prescriptions, setPrescriptions] = useState<any>();
   const [openConsultationModal, setOpenConsultationModal] =
     useState<boolean>(false);
-  const [selectedConsultation, setSelectedConsultation] = useState<any>(null)
+  const [selectedConsultation, setSelectedConsultation] = useState<any>(null);
 
   const [dailyIncomeData, setDailyIncomeData] =
     useState<ChartData<"line"> | null>(null);
@@ -105,7 +109,6 @@ const ProfilePage = () => {
     { name: "VIEWS", uid: "views" },
     { name: "LIKES", uid: "likes" },
     { name: "CREATED_AT", uid: "created_at" },
-    { name: "UPDATED_AT", uid: "updated_at" },
     { name: "ACTIONS", uid: "actions" },
   ];
 
@@ -192,7 +195,10 @@ const ProfilePage = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setUserImage((prev: any) => ({ ...prev, image: reader.result as string }));
+        setUserImage((prev: any) => ({
+          ...prev,
+          image: reader.result as string,
+        }));
       };
       reader.readAsDataURL(file);
     }
@@ -223,7 +229,7 @@ const ProfilePage = () => {
       setUserModel(formattedUser);
       setInitialUserModel(formattedUser);
     }
-  } 
+  };
 
   useEffect(() => {
     if (tokenDecode) {
@@ -285,7 +291,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (userImage) {
-      handlePutUserImage()
+      handlePutUserImage();
     }
   }, [userImage]);
 
@@ -1291,188 +1297,191 @@ const ProfilePage = () => {
                 ) : tab === 2 && userModel ? (
                   tokenDecode.role == "doctor" ? (
                     <div className="w-full">
-                    <h2 className="mb-4 text-2xl font-semibold">
-                      Lịch tư vấn tuần, ngày {datesOfWeek?.[0]} đến{" "}
-                      {datesOfWeek?.[5]}{" "}
-                    </h2>
-                    <div className={`w-full grid grid-cols-6`}>
-                      {daysOfWeek?.map((item: any, index: number) => {
-                        return (
-                          <div className="col-span-1 py-6 flex justify-center flex-wrap items-center border border-gray-300 font-bold text-white bg-slate-600 ">
-                            <div className="w-full flex justify-center">
-                              {item}
+                      <h2 className="mb-4 text-2xl font-semibold">
+                        Lịch tư vấn tuần, ngày {datesOfWeek?.[0]} đến{" "}
+                        {datesOfWeek?.[5]}{" "}
+                      </h2>
+                      <div className={`w-full grid grid-cols-6`}>
+                        {daysOfWeek?.map((item: any, index: number) => {
+                          return (
+                            <div className="col-span-1 py-6 flex justify-center flex-wrap items-center border border-gray-300 font-bold text-white bg-slate-600 ">
+                              <div className="w-full flex justify-center">
+                                {item}
+                              </div>
+                              <div className="w-full flex justify-center">
+                                {datesOfWeek?.[index]}
+                              </div>
                             </div>
-                            <div className="w-full flex justify-center">
-                              {datesOfWeek?.[index]}
-                            </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`07:00-${index}`}
-                          time="07:00 - 07:30"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`07:00-${index}`}
+                            time="07:00 - 07:30"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`07:30-${index}`}
-                          time="07:30 - 08:00"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`07:30-${index}`}
+                            time="07:30 - 08:00"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`08:00-${index}`}
-                          time="08:00 - 08:30"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`08:00-${index}`}
+                            time="08:00 - 08:30"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`08:30-${index}`}
-                          time="08:30 - 09:00"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`08:30-${index}`}
+                            time="08:30 - 09:00"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`09:30-${index}`}
-                          time="09:30 - 10:00"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`09:30-${index}`}
+                            time="09:30 - 10:00"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`10:00-${index}`}
-                          time="10:00 - 13:00"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`10:00-${index}`}
+                            time="10:00 - 13:00"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`10:30-${index}`}
-                          time="10:30 - 11:00"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`10:30-${index}`}
+                            time="10:30 - 11:00"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`11:00-${index}`}
-                          time="11:00 - 11:30"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`11:00-${index}`}
+                            time="11:00 - 11:30"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => {
-                        return (
-                          <div key={index} className="col-span-1 py-4 flex justify-center flex-wrap items-center border border-gray-300 font-bold bg-gray-300 text-gray-500"></div>
-                        );
-                      })}
+                        {daysOfWeek?.map((item: any, index: number) => {
+                          return (
+                            <div
+                              key={index}
+                              className="col-span-1 py-4 flex justify-center flex-wrap items-center border border-gray-300 font-bold bg-gray-300 text-gray-500"
+                            ></div>
+                          );
+                        })}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`13:30-${index}`}
-                          time="13:30 - 14:00"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`13:30-${index}`}
+                            time="13:30 - 14:00"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`14:00-${index}`}
-                          time="14:00 - 14:30"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`14:30-${index}`}
-                          time="14:30 - 15:00"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`14:00-${index}`}
+                            time="14:00 - 14:30"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`14:30-${index}`}
+                            time="14:30 - 15:00"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`15:00-${index}`}
-                          time="15:00 - 15:30"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`15:00-${index}`}
+                            time="15:00 - 15:30"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`16:00-${index}`}
-                          time="16:00 - 16:30"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`16:00-${index}`}
+                            time="16:00 - 16:30"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
 
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`16:30-${index}`}
-                          time="16:30 - 17:00"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`17:00-${index}`}
-                          time="17:00 - 17:30"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
-                      {daysOfWeek?.map((item: any, index: number) => (
-                        <TimeSlot
-                          key={`17:30-${index}`}
-                          time="17:30 - 18:00"
-                          index={index}
-                          datesOfWeek={datesOfWeek}
-                          appointments={userAppointment}
-                        />
-                      ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`16:30-${index}`}
+                            time="16:30 - 17:00"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`17:00-${index}`}
+                            time="17:00 - 17:30"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
+                        {daysOfWeek?.map((item: any, index: number) => (
+                          <TimeSlot
+                            key={`17:30-${index}`}
+                            time="17:30 - 18:00"
+                            index={index}
+                            datesOfWeek={datesOfWeek}
+                            appointments={userAppointment}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
                   ) : (
                     <div className="w-full">
                       <h2 className="mb-4 text-2xl font-semibold">
@@ -1735,10 +1744,6 @@ const ProfilePage = () => {
                       <span>
                         Ngày tạo:{" "}
                         {formatDateTime(selectedConsultation?.created_at)}
-                      </span>
-                      <span>
-                        Cập nhật:{" "}
-                        {formatDateTime(selectedConsultation?.updated_at)}{" "}
                       </span>
                     </div>
                     <div className="w-full">

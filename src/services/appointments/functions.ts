@@ -11,17 +11,13 @@ export const getAppointmentsThisWeek = async (doctorId: number) => {
     );
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }
@@ -35,17 +31,13 @@ export const getAppointmentByID = async (id: number) => {
     );
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }
@@ -59,17 +51,13 @@ export const getPatientAppointmentByID = async (id: number) => {
     );
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }
@@ -80,17 +68,13 @@ export const getDoctorAppointmentByID = async (id: number) => {
     const response: any = await apiRequest(`/appointments/doctor/${id}`, "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }
@@ -109,9 +93,7 @@ export const postAppointmentsThisWeek = async (
     });
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -120,9 +102,7 @@ export const postAppointmentsThisWeek = async (
     });
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }
@@ -135,17 +115,13 @@ export const putAppointmentStatus = async (id: number, status: string) => {
     });
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }
@@ -159,17 +135,13 @@ export const putAppointmentConfirmed = async (id: number) => {
     );
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }

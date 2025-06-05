@@ -9,6 +9,7 @@ import { deleteCookie } from "@/services/auth/saveCookie";
 import { getUserImage } from "@/services/auth/functions";
 import { Image } from "@heroui/image";
 import { PhoneIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
+import { useChatContext } from "@/context/chatContext";
 
 const Header = () => {
   const tokenDecode = useAuth();
@@ -16,6 +17,7 @@ const Header = () => {
   const pathName = usePathname();
   const router = useRouter();
 
+  const { closeChat } = useChatContext();
   const [base64Image, setBase64Image] = useState<string | null>(null);
 
   const getImage = async (id: number) => {
@@ -25,7 +27,8 @@ const Header = () => {
 
   const handleLogout = () => {
     deleteCookie("token");
-    router.push("/login");
+    closeChat();
+    router.replace("/login");
   };
 
   useEffect(() => {
@@ -127,8 +130,12 @@ const Header = () => {
       </div>
       <div className="w-screen flex justify-center">
         <div className="max-w-screen-xl w-full gap-20 flex justify-end items-center py-1 text-gray-500">
-            <p className="flex items-center gap-2"><PhoneIcon className="w-4 h-4"/> +84 357 395 573</p>
-            <p className="flex items-center gap-2"><EnvelopeIcon className="w-4 h-4"/> congminh0801@gmail.com</p>
+          <p className="flex items-center gap-2">
+            <PhoneIcon className="w-4 h-4" /> +84 357 395 573
+          </p>
+          <p className="flex items-center gap-2">
+            <EnvelopeIcon className="w-4 h-4" /> congminh0801@gmail.com
+          </p>
         </div>
       </div>
     </div>

@@ -8,17 +8,13 @@ export const getAllPatients = async () => {
     const response: any = await apiRequest("/patients", "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -29,9 +25,7 @@ export const updatePatient = async (id: number, body: any) => {
     const response: any = await apiRequest(`/patients/${id}`, "PUT", body);
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -40,9 +34,7 @@ export const updatePatient = async (id: number, body: any) => {
     });
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }

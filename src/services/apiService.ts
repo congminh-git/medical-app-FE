@@ -49,17 +49,13 @@ export async function apiRequest<T>(
 
     const data = await response.json();
     if (!response.ok) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(data.message || "Something went wrong");
     }
 
     return { success: true, data };
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     return { success: false, error: (error as Error).message };
   }
 }

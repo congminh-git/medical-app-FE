@@ -15,17 +15,13 @@ export const getNewArticles = async () => {
     const response: any = await apiRequest("/articles/latest", "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -39,17 +35,13 @@ export const deleteAirticle = async (id: number, doctorID: number) => {
     );
 
     if (response) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }
@@ -60,17 +52,13 @@ export const getTopArticles = async () => {
     const response: any = await apiRequest("/articles/top-views", "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -81,17 +69,13 @@ export const getAllArticles = async () => {
     const response: any = await apiRequest("/articles", "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -102,17 +86,13 @@ export const getAllDoctorArticles = async (id: number) => {
     const response: any = await apiRequest(`/articles/user/${id}`, "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -126,17 +106,13 @@ export const getArticlesSlug = async (id: any, slug: string) => {
     );
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -147,9 +123,7 @@ export const postAddAirticle = async (body: AddArticle) => {
     const response: any = await apiRequest(`/articles`, "POST", body);
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -158,9 +132,7 @@ export const postAddAirticle = async (body: AddArticle) => {
     });
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }
@@ -179,9 +151,7 @@ export const putUpdateAirticle = async (
     );
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -190,9 +160,7 @@ export const putUpdateAirticle = async (
     });
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }
@@ -206,17 +174,13 @@ export const putArticleLike = async (id: number, userID: number) => {
     );
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.log(error);
     return null;
   }

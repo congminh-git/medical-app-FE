@@ -6,21 +6,24 @@ import Footer from "@/components/footer";
 import { useEffect, useState } from "react";
 import RichTextEditor from "@/components/richTextEditor/richTextEditor";
 import { getAllSpecialties } from "@/services/specialties/functions";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   getArticlesSlug,
   putUpdateAirticle,
 } from "@/services/articles/functions";
 import { generateSlug } from "@/services/reUseFunctions";
 import { Input } from "@heroui/input";
+import { useRouter, usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 const UpdateArticlesPage = () => {
   useAuth();
-  const params = useParams();
-  const searchParams = useSearchParams();
-  const id = params?.id || "";
-  const slug = searchParams.get("slug") || "";
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [id, setId] = useState("");
+  const [slug, setSlug] = useState("");
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [specialties, setSpecialties] = useState("");
@@ -30,15 +33,47 @@ const UpdateArticlesPage = () => {
   const [article, setArticle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async () => {
-    setLoading(true);
-    const fetchSpecialties = await getAllSpecialties();
-    const fetchArticle = await getArticlesSlug(id, slug);
-    setAllSpecialties(fetchSpecialties);
-    setArticle(fetchArticle);
-    setOriginalArticles(fetchArticle);
-    setLoading(false);
-  };
+  useEffect(() => {
+    const paths = pathname.split("/");
+    const articleId = paths[paths.length - 1];
+    const slugParam = searchParams.get("slug") || "";
+
+    if (articleId) {
+      setId(articleId);
+      setSlug(slugParam);
+    }
+  }, [pathname, searchParams]);
+
+  useEffect(() => {
+    if (!id || !slug) return;
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [fetchSpecialties, fetchArticle] = await Promise.all([
+          getAllSpecialties(),
+          getArticlesSlug(id, slug),
+        ]);
+        setAllSpecialties(fetchSpecialties);
+        setArticle(fetchArticle);
+        setOriginalArticles(fetchArticle);
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id, slug]);
+
+  useEffect(() => {
+    if (article) {
+      setTitle(article.title || "");
+      setContent(article.content || "");
+      setSpecialties(article.specialties || "");
+    }
+  }, [article]);
 
   const handleUpdateArticle = async () => {
     const result = await putUpdateAirticle(
@@ -57,33 +92,17 @@ const UpdateArticlesPage = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setNewImage((prev: any) => {
-          console.log(prev);
-          return reader.result as string});
+        setNewImage(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (article) {
-      setTitle(article.title || "");
-      setContent(article.content || "");
-      setSpecialties(article.specialties || "");
-    }
-  }, [article]);
-
-  if (!id) return <p>Không tìm thấy bài viết.</p>;
-  if (loading) return <p>Loading...</p>;
+  if (!id || loading) return <p className="mt-40 text-center">Đang tải...</p>;
 
   return (
     <>
       <Header />
-
       <div className="bg-white mm flex justify-center flex-wrap mt-[120px]">
         <section className="w-full min-h-screen max-w-screen-xl py-10 bg-white">
           <div className="w-full flex justify-between">
@@ -91,12 +110,11 @@ const UpdateArticlesPage = () => {
               Cập nhật bài viết
             </h1>
           </div>
+
           <div className="w-full mt-8">
             <div className="w-full grid grid-cols-3 gap-4">
               <div className="w-full col-span-2">
-                <label className="block" htmlFor="">
-                  Tiêu đề:
-                </label>
+                <label className="block">Tiêu đề:</label>
                 <input
                   className="border rounded-md bg-gray-100 py-2 px-4 mt-1 w-full"
                   type="text"
@@ -105,18 +123,16 @@ const UpdateArticlesPage = () => {
                 />
               </div>
               <div className="w-full">
-                <label className="block" htmlFor="">
-                  Chuyên khoa:
-                </label>
+                <label className="block">Chuyên khoa:</label>
                 <select
                   className="border rounded-md bg-gray-200 py-2 px-4 mt-1 w-full"
                   value={specialties}
                   onChange={(e) => setSpecialties(e.target.value)}
                 >
                   <option key=""></option>
-                  {allSpecialties?.map((item: any) => {
-                    return <option key={item.id}>{item.name}</option>;
-                  })}
+                  {allSpecialties?.map((item: any) => (
+                    <option key={item.id}>{item.name}</option>
+                  ))}
                 </select>
               </div>
 
@@ -133,23 +149,23 @@ const UpdateArticlesPage = () => {
                 />
               </div>
             </div>
+
             <div className="w-full mt-4">
-              {content != "" ? (
+              {content !== "" && (
                 <RichTextEditor content={content} onChange={setContent} />
-              ) : (
-                <></>
               )}
             </div>
+
             {title &&
             specialties &&
             content &&
-            (originalArticles?.title != title ||
-              originalArticles?.specialties != specialties ||
-              originalArticles?.content != content) ||
-              newImage ? (
+            (originalArticles?.title !== title ||
+              originalArticles?.specialties !== specialties ||
+              originalArticles?.content !== content) ||
+            newImage ? (
               <button
                 className="w-full bg-blue-500 text-white py-2 px-4 mt-4 rounded"
-                onClick={() => handleUpdateArticle()}
+                onClick={handleUpdateArticle}
               >
                 Lưu thay đổi
               </button>
@@ -161,6 +177,7 @@ const UpdateArticlesPage = () => {
                 Lưu thay đổi
               </button>
             )}
+
             <div className="mt-8 w-full border p-4 rounded bg-gray-100">
               <h2 className="text-lg font-semibold">Xem trước bài viết:</h2>
               <div className="mt-4 p-4 bg-white rounded shadow-sm border">
@@ -176,7 +193,7 @@ const UpdateArticlesPage = () => {
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                   }}
-                ></div>
+                />
                 <div
                   className="rich-text-preview"
                   dangerouslySetInnerHTML={{ __html: content }}
@@ -186,7 +203,6 @@ const UpdateArticlesPage = () => {
           </div>
         </section>
       </div>
-
       <Footer />
     </>
   );

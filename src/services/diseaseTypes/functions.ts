@@ -8,17 +8,13 @@ export const getAllDiseaseTypes = async () => {
     const response: any = await apiRequest("/diseaseTypes", "GET");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -29,9 +25,7 @@ export const deleteDiseaseType = async (id: number) => {
     const response: any = await apiRequest(`/diseaseTypes/${id}`, "DELETE");
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -40,9 +34,7 @@ export const deleteDiseaseType = async (id: number) => {
     });
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -53,9 +45,7 @@ export const addDiseaseType = async (body: any) => {
     const response: any = await apiRequest(`/diseaseTypes`, "POST", body);
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -64,9 +54,7 @@ export const addDiseaseType = async (body: any) => {
     });
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }
@@ -77,9 +65,7 @@ export const updateDiseaseTypeInfo = async (id: number, body: any) => {
     const response: any = await apiRequest(`/diseaseTypes/${id}`, "PUT", body);
 
     if (!response.success) {
-      toast.error("Something went wrong", {
-        position: "bottom-right",
-      });
+      console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
 
@@ -88,9 +74,7 @@ export const updateDiseaseTypeInfo = async (id: number, body: any) => {
     });
     return response.data;
   } catch (error) {
-    toast.error("Something went wrong", {
-      position: "bottom-right",
-    });
+    console.log("Something went wrong")
     console.error("Lỗi đăng nhập:", error);
     return null;
   }

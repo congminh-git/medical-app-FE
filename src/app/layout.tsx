@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {Providers} from "./providers";
+import { Providers } from "./providers";
 import { ToastContainer } from "react-toastify";
-import AllChatContact from "@/components/allChatContact";
+import { ChatProvider } from "@/context/chatContext";
+import AllChatContactWrapper from "@/components/allChatContactWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,14 +28,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"></link>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          {children}
+          <ChatProvider>
+            {children}
+            <AllChatContactWrapper />
+          </ChatProvider>
+          <ToastContainer />
         </Providers>
-        <AllChatContact/>
-        <ToastContainer />
       </body>
     </html>
   );
