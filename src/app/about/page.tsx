@@ -28,7 +28,7 @@ export default function Home() {
             </h2>
           </div>
           <div className="grid grid-cols-5 gap-8 h-[500px] w-full mt-6">
-            <div className="col-span-2 h-full bg-[url(https://heroui.com/images/hero-card-complete.jpeg)] bg-cover bg-center rounded-xl"></div>
+            <div className="col-span-2 h-full bg-[url(https://optimise2.assets-servd.host/smart-hoopoe/production/content/images/Future-of-Healthcare.jpeg?w=2240&h=1260&q=45&fm=jpg&fit=crop&dm=1725982077&s=de109917f14752da7d5a5bc83f65c796)] bg-cover bg-center rounded-xl"></div>
             <div className="col-span-3 flex items-center">
               <p className="text-2xl  font-semibold text-[#34495E]">
                 <span className="block mb-2">
@@ -82,7 +82,7 @@ export default function Home() {
                 </span>
               </p>
             </div>
-            <div className="col-span-2 h-full bg-[url(https://heroui.com/images/hero-card-complete.jpeg)] bg-cover bg-center rounded-xl"></div>
+            <div className="col-span-2 h-full bg-[url(https://www.mua.edu/uploads/sites/10/2023/02/istock-482499394.webp)] bg-cover bg-center rounded-xl"></div>
           </div>
         </section>
       </div>
