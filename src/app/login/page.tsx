@@ -115,10 +115,10 @@ export default function LoginPage() {
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
             <div className="flex justify-between items-center mb-8">
-              <Switch size="sm">Lưu mật khẩu</Switch>
+              {/* <Switch size="sm">Lưu mật khẩu</Switch>
               <Link href="#" color="primary">
                 Quên mật khẩu
-              </Link>
+              </Link> */}
             </div>
 
             <Button

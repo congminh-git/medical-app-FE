@@ -1,21 +1,36 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "../../components/header";
 import Footer from "../../components/footer";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 import { useAuth } from "@/hooks/useAuth";
+import PageFallback from "@/components/fallback";
 
 export default function Home() {
   useAuth();
   const newArticlesRef = useRef<HTMLElement | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000); // 1 giây
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <PageFallback />
+    );
+  }
 
   return (
     <>
       <Header />
 
       <div className="bg-white mm flex justify-center flex-wrap mt-[120px]">
-
         {/* Message */}
         <section
           ref={newArticlesRef}

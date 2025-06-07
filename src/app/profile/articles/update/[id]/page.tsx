@@ -3,7 +3,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import RichTextEditor from "@/components/richTextEditor/richTextEditor";
 import { getAllSpecialties } from "@/services/specialties/functions";
 import {
@@ -12,8 +12,8 @@ import {
 } from "@/services/articles/functions";
 import { generateSlug } from "@/services/reUseFunctions";
 import { Input } from "@heroui/input";
-import { useRouter, usePathname } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import PageFallback from "@/components/fallback";
 
 const UpdateArticlesPage = () => {
   useAuth();
@@ -31,24 +31,29 @@ const UpdateArticlesPage = () => {
   const [originalArticles, setOriginalArticles] = useState<any>(null);
   const [newImage, setNewImage] = useState("");
   const [article, setArticle] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Khởi tạo loading là true
 
+  // Lấy ID và Slug từ URL
   useEffect(() => {
     const paths = pathname.split("/");
     const articleId = paths[paths.length - 1];
     const slugParam = searchParams.get("slug") || "";
 
-    if (articleId) {
+    if (articleId && slugParam) {
       setId(articleId);
       setSlug(slugParam);
+    } else {
+      // Nếu không có id hoặc slug, có thể coi là chưa sẵn sàng để fetch
+      setLoading(false);
     }
   }, [pathname, searchParams]);
 
+  // Fetch dữ liệu khi ID và Slug đã có
   useEffect(() => {
     if (!id || !slug) return;
 
     const fetchData = async () => {
-      setLoading(true);
+      setLoading(true); // Bắt đầu fetch, đặt loading về true
       try {
         const [fetchSpecialties, fetchArticle] = await Promise.all([
           getAllSpecialties(),
@@ -56,49 +61,59 @@ const UpdateArticlesPage = () => {
         ]);
         setAllSpecialties(fetchSpecialties);
         setArticle(fetchArticle);
-        setOriginalArticles(fetchArticle);
+        setOriginalArticles(fetchArticle); // Lưu trữ bản gốc để so sánh thay đổi
+
+        // Cập nhật state form với dữ liệu fetch về
+        setTitle(fetchArticle.title || "");
+        setContent(fetchArticle.content || "");
+        setSpecialties(fetchArticle.specialties || "");
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
+        // Có thể thêm xử lý lỗi ở đây, ví dụ: hiển thị thông báo lỗi
       } finally {
-        setLoading(false);
+        setLoading(false); // Kết thúc fetch, đặt loading về false
       }
     };
 
     fetchData();
-  }, [id, slug]);
+  }, [id, slug]); // Dependencies: id và slug
 
-  useEffect(() => {
-    if (article) {
-      setTitle(article.title || "");
-      setContent(article.content || "");
-      setSpecialties(article.specialties || "");
-    }
-  }, [article]);
+  // Callback để xử lý cập nhật bài viết
+  const handleUpdateArticle = useCallback(async () => {
+    // Đảm bảo article không null trước khi gọi generateSlug
+    if (!article) return;
 
-  const handleUpdateArticle = async () => {
     const result = await putUpdateAirticle(
       article.id,
-      generateSlug(article.title, article.id),
+      generateSlug(title, article.id), // Sử dụng title hiện tại cho slug mới
       { title, specialties, content, image: newImage || article.image }
     );
     if (result.id) {
       const endpoint = generateSlug(title, article.id);
       router.replace("/articles" + endpoint);
     }
-  };
+  }, [article, title, specialties, content, newImage, router]);
 
-  const handleImageToBase64 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // Callback để chuyển đổi hình ảnh sang base64
+  const handleImageToBase64 = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setNewImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    []
+  );
 
-  if (!id || loading) return <p className="mt-40 text-center">Đang tải...</p>;
+  // Hiển thị PageFallback khi đang tải dữ liệu hoặc chưa có ID
+  if (!id || loading) {
+    console.log("📱 Rendering UpdateArticlesPage Fallback...");
+    return <PageFallback />;
+  }
 
   return (
     <>
@@ -151,6 +166,7 @@ const UpdateArticlesPage = () => {
             </div>
 
             <div className="w-full mt-4">
+              {/* Chỉ render RichTextEditor khi content đã có dữ liệu */}
               {content !== "" && (
                 <RichTextEditor content={content} onChange={setContent} />
               )}
@@ -161,8 +177,8 @@ const UpdateArticlesPage = () => {
             content &&
             (originalArticles?.title !== title ||
               originalArticles?.specialties !== specialties ||
-              originalArticles?.content !== content) ||
-            newImage ? (
+              originalArticles?.content !== content ||
+              newImage) ? ( // Thêm newImage vào điều kiện enable button
               <button
                 className="w-full bg-blue-500 text-white py-2 px-4 mt-4 rounded"
                 onClick={handleUpdateArticle}
@@ -187,7 +203,7 @@ const UpdateArticlesPage = () => {
                   style={{
                     backgroundImage: newImage
                       ? `url('${newImage}')`
-                      : originalArticles
+                      : originalArticles // Hiển thị ảnh gốc nếu không có ảnh mới
                       ? `url('${originalArticles?.image}')`
                       : "",
                     backgroundSize: "cover",

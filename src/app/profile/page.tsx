@@ -3,8 +3,9 @@
 import { Avatar } from "@heroui/avatar";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
+import PageFallback from "@/components/fallback";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   getUserInfo,
   putUserImage,
@@ -69,128 +70,179 @@ const ProfilePage = () => {
   const tokenDecode = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Loading states
+  const [isLoading, setIsLoading] = useState(true);
   const [isLogin, setIsLogin] = useState(false);
+  const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+  const [isTabDataLoading, setIsTabDataLoading] = useState(false);
+  
+  // User states
   const [user, setUser] = useState<any>(null);
   const [tab, setTab] = useState<number>(0);
   const [initialUserModel, setInitialUserModel] = useState<any>(null);
   const [userModel, setUserModel] = useState<any>(null);
   const [userImage, setUserImage] = useState<any>(null);
   const [isChanged, setIsChanged] = useState(false);
+  
+  // Data states
   const [allSpecialties, setAllSpecialties] = useState<any[]>([]);
   const [doctorArticles, setDoctorArticles] = useState([]);
-  const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
-  const datesOfWeek = useMemo(() => getCurrentWeekDates().weekDates, []);
   const [userAppointment, setUserAppointment] = useState<any>([]);
   const [allPaymentTransaction, setAllPaymentTransaction] = useState([]);
   const [medicineTypes, setMedicineTypes] = useState<any>([]);
   const [prescriptions, setPrescriptions] = useState<any>();
-  const [openConsultationModal, setOpenConsultationModal] =
-    useState<boolean>(false);
+  
+  // Modal states
+  const [openConsultationModal, setOpenConsultationModal] = useState<boolean>(false);
   const [selectedConsultation, setSelectedConsultation] = useState<any>(null);
 
-  const [dailyIncomeData, setDailyIncomeData] =
-    useState<ChartData<"line"> | null>(null);
-  const [dailyIncomeOptions, setDailyIncomeOptions] =
-    useState<ChartOptions<"line"> | null>(null);
+  // Chart states
+  const [dailyIncomeData, setDailyIncomeData] = useState<ChartData<"line"> | null>(null);
+  const [dailyIncomeOptions, setDailyIncomeOptions] = useState<ChartOptions<"line"> | null>(null);
+  const [monthlyIncomeData, setMonthlyIncomeData] = useState<ChartData<"bar"> | null>(null);
+  const [monthlyIncomeOptions, setMonthlyIncomeOptions] = useState<ChartOptions<"bar"> | null>(null);
+  const [monthlyPaymentMethodData, setMonthlyPaymentMethodData] = useState<ChartData<"pie"> | null>(null);
+  const [monthlyPaymentMethodOptions, setMonthlyPaymentMethodOptions] = useState<ChartOptions<"pie"> | null>(null);
 
-  const [monthlyIncomeData, setMonthlyIncomeData] =
-    useState<ChartData<"bar"> | null>(null);
-  const [monthlyIncomeOptions, setMonthlyIncomeOptions] =
-    useState<ChartOptions<"bar"> | null>(null);
+  // Constants
+  const daysOfWeek = useMemo(() => ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"], []);
+  const datesOfWeek = useMemo(() => getCurrentWeekDates().weekDates, []);
 
-  const [monthlyPaymentMethodData, setMonthlyPaymentMethodData] =
-    useState<ChartData<"pie"> | null>(null);
-  const [monthlyPaymentMethodOptions, setMonthlyPaymentMethodOptions] =
-    useState<ChartOptions<"pie"> | null>(null);
-
-  const doctorArticlesColumns = [
+  const doctorArticlesColumns = useMemo(() => [
     { name: "SPECIALTIES", uid: "specialties" },
     { name: "TITLE", uid: "title" },
     { name: "VIEWS", uid: "views" },
     { name: "LIKES", uid: "likes" },
     { name: "CREATED_AT", uid: "created_at" },
     { name: "ACTIONS", uid: "actions" },
-  ];
+  ], []);
 
-  const userDoctorAppointmentColumn = [
+  const userDoctorAppointmentColumn = useMemo(() => [
     { name: "PATIENT", uid: "patient" },
     { name: "TIME", uid: "appointment_time" },
     { name: "STATUS", uid: "status" },
     { name: "CREATED_AT", uid: "created_at" },
     { name: "CONSULTATION", uid: "consultation" },
     { name: "ACTIONS", uid: "actions" },
-  ];
+  ], []);
 
-  const userPatientAppointmentColumn = [
+  const userPatientAppointmentColumn = useMemo(() => [
     { name: "DOCTOR", uid: "doctor" },
     { name: "TIME", uid: "appointment_time" },
     { name: "STATUS", uid: "status" },
     { name: "CREATED_AT", uid: "created_at" },
     { name: "CONSULTATION", uid: "consultation" },
     { name: "ACTIONS", uid: "actions" },
-  ];
+  ], []);
 
-  const patientPaymentTransactions = [
+  const patientPaymentTransactions = useMemo(() => [
     { name: "Transactions ID", uid: "trans_id" },
     { name: "Order ID", uid: "order_id" },
     { name: "Doctor", uid: "doctor_id" },
     { name: "Amount", uid: "amount" },
     { name: "Status", uid: "status" },
     { name: "Time", uid: "created_at" },
-  ];
+  ], []);
 
-  const getSpecialties = async () => {
-    const specialties = await getAllSpecialties();
-    setAllSpecialties(specialties);
-  };
-
-  const getArticles = async () => {
-    const articles = await getAllDoctorArticles(tokenDecode.id);
-    setDoctorArticles(articles);
-  };
-
-  const getUserAppointment = async (id: number) => {
-    if (tokenDecode.role == "doctor") {
-      const appointments = await getDoctorAppointmentByID(id);
-      setUserAppointment(appointments);
-    } else {
-      const appointments = await getPatientAppointmentByID(id);
-      setUserAppointment(appointments);
+  // Optimized fetch functions with error handling
+  const getSpecialties = useCallback(async () => {
+    try {
+      const specialties = await getAllSpecialties();
+      setAllSpecialties(specialties);
+    } catch (error) {
+      console.error("Error fetching specialties:", error);
     }
-  };
+  }, []);
 
-  const getMedicineData = async () => {
-    const medicineTypesData = await getAllMedicineTypes();
-    setMedicineTypes(medicineTypesData);
-  };
-
-  const getPrescriptionData = async (id: number) => {
-    const data = await getPrescription(id);
-    setPrescriptions(data);
-  };
-
-  const getUser = async (id: number) => {
-    const userInfo: any = await getUserInfo(id);
-    if (userInfo) {
-      const formattedUser = {
-        id: userInfo?.id,
-        full_name: userInfo?.full_name,
-        email: userInfo?.email,
-        phone_number: userInfo?.phone_number,
-        role: userInfo?.role,
-        details: { ...userInfo?.details },
-        image: userInfo?.image,
-      };
-
-      setUser(formattedUser);
-      setUserModel(formattedUser);
-      setInitialUserModel(formattedUser);
-      getUserAppointment(tokenDecode.id);
-      getMedicineData();
+  const getArticles = useCallback(async () => {
+    if (!tokenDecode?.id) return;
+    try {
+      setIsTabDataLoading(true);
+      const articles = await getAllDoctorArticles(tokenDecode.id);
+      setDoctorArticles(articles);
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+    } finally {
+      setIsTabDataLoading(false);
     }
-  };
+  }, [tokenDecode?.id]);
 
-  const handleImageToBase64 = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const getUserAppointment = useCallback(async (id: number) => {
+    if (!tokenDecode?.role) return;
+    try {
+      let appointments;
+      if (tokenDecode.role === "doctor") {
+        appointments = await getDoctorAppointmentByID(id);
+      } else {
+        appointments = await getPatientAppointmentByID(id);
+      }
+      setUserAppointment(appointments);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    }
+  }, [tokenDecode?.role]);
+
+  const getMedicineData = useCallback(async () => {
+    try {
+      const medicineTypesData = await getAllMedicineTypes();
+      setMedicineTypes(medicineTypesData);
+    } catch (error) {
+      console.error("Error fetching medicine data:", error);
+    }
+  }, []);
+
+  const getPrescriptionData = useCallback(async (id: number) => {
+    try {
+      const data = await getPrescription(id);
+      setPrescriptions(data);
+    } catch (error) {
+      console.error("Error fetching prescription:", error);
+    }
+  }, []);
+
+  const getUser = useCallback(async (id: number) => {
+    try {
+      const userInfo: any = await getUserInfo(id);
+      if (userInfo) {
+        const formattedUser = {
+          id: userInfo?.id,
+          full_name: userInfo?.full_name,
+          email: userInfo?.email,
+          phone_number: userInfo?.phone_number,
+          role: userInfo?.role,
+          details: { ...userInfo?.details },
+          image: userInfo?.image,
+        };
+
+        setUser(formattedUser);
+        setUserModel(formattedUser);
+        setInitialUserModel(formattedUser);
+        
+        // Parallel fetch for better performance
+        await Promise.all([
+          getUserAppointment(id),
+          getMedicineData()
+        ]);
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  }, [getUserAppointment, getMedicineData]);
+
+  const handleGetAllPaymentTransactions = useCallback(async (id: number) => {
+    try {
+      setIsTabDataLoading(true);
+      const result = await getAllUserPaymentTransactions(id);
+      setAllPaymentTransaction(result);
+    } catch (error) {
+      console.error("Error fetching payment transactions:", error);
+    } finally {
+      setIsTabDataLoading(false);
+    }
+  }, []);
+
+  const handleImageToBase64 = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -202,100 +254,134 @@ const ProfilePage = () => {
       };
       reader.readAsDataURL(file);
     }
-  };
+  }, []);
 
-  const handleSaveChanges = async () => {
-    const result = await updateUserInfo(tokenDecode.id, userModel);
-    if (result.status == "200") {
-      await getUser(tokenDecode.id);
-      setIsChanged(false);
+  const handleSaveChanges = useCallback(async () => {
+    if (!tokenDecode?.id) return;
+    try {
+      const result = await updateUserInfo(tokenDecode.id, userModel);
+      if (result.status === "200") {
+        await getUser(tokenDecode.id);
+        setIsChanged(false);
+      }
+    } catch (error) {
+      console.error("Error saving changes:", error);
     }
-  };
+  }, [tokenDecode?.id, userModel, getUser]);
 
-  const handleGetAllPaymentTransactions = async (id: number) => {
-    const result = await getAllUserPaymentTransactions(id);
-    setAllPaymentTransaction(result);
-  };
+  const handlePutUserImage = useCallback(async () => {
+    if (!tokenDecode?.id || !userImage) return;
+    try {
+      const result = await putUserImage(tokenDecode.id, userImage);
+      if (result.id) {
+        const formattedUser = {
+          ...user,
+          image: result.image,
+        };
 
-  const handlePutUserImage = async () => {
-    const result = await putUserImage(tokenDecode.id, userImage);
-    if (result.id) {
-      const formattedUser = {
-        ...user,
-        image: result.image,
-      };
-
-      setUser(formattedUser);
-      setUserModel(formattedUser);
-      setInitialUserModel(formattedUser);
+        setUser(formattedUser);
+        setUserModel(formattedUser);
+        setInitialUserModel(formattedUser);
+      }
+    } catch (error) {
+      console.error("Error updating user image:", error);
     }
-  };
+  }, [tokenDecode?.id, userImage, user]);
 
+  // Initial data loading
   useEffect(() => {
-    if (tokenDecode) {
-      setIsLogin(true);
-      getUser(tokenDecode.id);
-      getSpecialties();
-    }
-  }, [tokenDecode]);
+    const initializeData = async () => {
+      if (tokenDecode?.id) {
+        console.log("📱 Initializing Profile Page data...");
+        setIsLogin(true);
+        setIsLoading(true);
+        
+        try {
+          await Promise.all([
+            getUser(tokenDecode.id),
+            getSpecialties()
+          ]);
+          setIsInitialDataLoaded(true);
+        } catch (error) {
+          console.error("Error initializing data:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
 
-  useEffect(() => {
-    if (userModel) {
-      console.log(userModel);
-    }
-  }, [userModel]);
+    initializeData();
+  }, [tokenDecode?.id, getUser, getSpecialties]);
 
+  // User model changes tracking
   useEffect(() => {
     if (!initialUserModel || !userModel) return;
-    setIsChanged(
-      JSON.stringify(initialUserModel) !== JSON.stringify(userModel)
-    );
+    const hasChanged = JSON.stringify(initialUserModel) !== JSON.stringify(userModel);
+    setIsChanged(hasChanged);
   }, [userModel, initialUserModel]);
 
-  useEffect(() => {
+  // Chart data processing (optimized with useMemo)
+  const chartData = useMemo(() => {
+    if (!allPaymentTransaction.length) return null;
+
     const dailyIncome = getDoctorDailyIncomeData(allPaymentTransaction);
-    setDailyIncomeData(dailyIncome.data);
-    setDailyIncomeOptions(dailyIncome.options);
+    const monthlyIncome = getDoctorMonthlyIncomeBarChartData(allPaymentTransaction);
+    const monthlyPaymentMethod = getDoctorPaymentMethodPieData(allPaymentTransaction);
 
-    const monthlyIncome = getDoctorMonthlyIncomeBarChartData(
-      allPaymentTransaction
-    );
-    setMonthlyIncomeData(monthlyIncome.data);
-    setMonthlyIncomeOptions(monthlyIncome.options);
-
-    const monthlyPaymentMethod = getDoctorPaymentMethodPieData(
-      allPaymentTransaction
-    );
-    setMonthlyPaymentMethodData(monthlyPaymentMethod.data);
-    setMonthlyPaymentMethodOptions(monthlyPaymentMethod.options);
+    return {
+      dailyIncome,
+      monthlyIncome,
+      monthlyPaymentMethod
+    };
   }, [allPaymentTransaction]);
 
+  // Update chart states when data changes
   useEffect(() => {
-    if (tab === 3) {
-      if (tokenDecode.role === "doctor") {
-        getArticles();
-      } else if (tokenDecode.role === "patient") {
-        handleGetAllPaymentTransactions(tokenDecode.id);
-      }
-    } else if (tab == 5) {
-      handleGetAllPaymentTransactions(tokenDecode.id);
+    if (chartData) {
+      setDailyIncomeData(chartData.dailyIncome.data);
+      setDailyIncomeOptions(chartData.dailyIncome.options);
+      setMonthlyIncomeData(chartData.monthlyIncome.data);
+      setMonthlyIncomeOptions(chartData.monthlyIncome.options);
+      setMonthlyPaymentMethodData(chartData.monthlyPaymentMethod.data);
+      setMonthlyPaymentMethodOptions(chartData.monthlyPaymentMethod.options);
     }
-  }, [tab]);
+  }, [chartData]);
 
+  // Tab-specific data loading
   useEffect(() => {
-    console.log(selectedConsultation);
-    if (selectedConsultation && selectedConsultation.prescription_id) {
+    if (!isInitialDataLoaded || !tokenDecode?.id) return;
+
+    const loadTabData = async () => {
+      if (tab === 3) {
+        if (tokenDecode.role === "doctor") {
+          await getArticles();
+        } else if (tokenDecode.role === "patient") {
+          await handleGetAllPaymentTransactions(tokenDecode.id);
+        }
+      } else if (tab === 5) {
+        await handleGetAllPaymentTransactions(tokenDecode.id);
+      }
+    };
+
+    loadTabData();
+  }, [tab, tokenDecode?.role, tokenDecode?.id, isInitialDataLoaded, getArticles, handleGetAllPaymentTransactions]);
+
+  // Prescription loading
+  useEffect(() => {
+    if (selectedConsultation?.prescription_id) {
       getPrescriptionData(selectedConsultation.prescription_id);
     }
-  }, [selectedConsultation]);
+  }, [selectedConsultation?.prescription_id, getPrescriptionData]);
 
+  // User image upload
   useEffect(() => {
     if (userImage) {
       handlePutUserImage();
     }
-  }, [userImage]);
+  }, [userImage, handlePutUserImage]);
 
-  const renderDoctorArticlesCell = (data: any, columnKey: any) => {
+  // Optimized render functions (memoized)
+  const renderDoctorArticlesCell = useCallback((data: any, columnKey: any) => {
     const cellValue = data[columnKey];
     switch (columnKey) {
       case "created_at":
@@ -351,9 +437,9 @@ const ProfilePage = () => {
       default:
         return cellValue;
     }
-  };
+  }, [tokenDecode?.id, getArticles]);
 
-  const renderUserPaymentTransactionsCell = (data: any, columnKey: any) => {
+  const renderUserPaymentTransactionsCell = useCallback((data: any, columnKey: any) => {
     const cellValue = data[columnKey];
     switch (columnKey) {
       case "created_at":
@@ -364,9 +450,9 @@ const ProfilePage = () => {
       case "amount":
         return parseInt(data.amount).toLocaleString() + " VNĐ";
       case "status":
-        if (data.status == "failed") {
+        if (data.status === "failed") {
           return <Chip color="danger">{data.status}</Chip>;
-        } else if (data.status == "success") {
+        } else if (data.status === "success") {
           return <Chip color="success">{data.status}</Chip>;
         }
         return (
@@ -374,7 +460,7 @@ const ProfilePage = () => {
             <button content="Details">
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
                 {data.url &&
-                (data.status == "pending" || data.status == "confirmed") ? (
+                (data.status === "pending" || data.status === "confirmed") ? (
                   <Button
                     color="primary"
                     onPress={() => {
@@ -395,9 +481,9 @@ const ProfilePage = () => {
       default:
         return cellValue;
     }
-  };
+  }, [router]);
 
-  const renderPatientAppointmentCell = (data: any, columnKey: any) => {
+  const renderPatientAppointmentCell = useCallback((data: any, columnKey: any) => {
     const cellValue = data[columnKey];
     switch (columnKey) {
       case "created_at":
@@ -426,37 +512,31 @@ const ProfilePage = () => {
           </div>
         );
       case "appointment_time":
-        const appointmentTime = new Date(data.appointment_time * 1000); // Nếu timestamp là giây
-        const hours = appointmentTime.getHours().toString().padStart(2, "0"); // Giờ (2 chữ số)
-        const minutes = appointmentTime
-          .getMinutes()
-          .toString()
-          .padStart(2, "0"); // Phút (2 chữ số)
-        const day = appointmentTime.getDate().toString().padStart(2, "0"); // Ngày (2 chữ số)
-        const month = (appointmentTime.getMonth() + 1)
-          .toString()
-          .padStart(2, "0"); // Tháng (2 chữ số)
-        const year = appointmentTime.getFullYear(); // Năm (4 chữ số)
-
-        // Trả về chuỗi theo định dạng "HH:mm dd/MM/yyyy"
+        const appointmentTime = new Date(data.appointment_time * 1000);
+        const hours = appointmentTime.getHours().toString().padStart(2, "0");
+        const minutes = appointmentTime.getMinutes().toString().padStart(2, "0");
+        const day = appointmentTime.getDate().toString().padStart(2, "0");
+        const month = (appointmentTime.getMonth() + 1).toString().padStart(2, "0");
+        const year = appointmentTime.getFullYear();
         return `${hours}:${minutes} ${day}/${month}/${year}`;
       case "status":
-        if (data.status == "pending") {
+        if (data.status === "pending") {
           return <Chip color="secondary">{data.status}</Chip>;
-        } else if (data.status == "canceled") {
+        } else if (data.status === "canceled") {
           return <Chip color="danger">{data.status}</Chip>;
-        } else if (data.status == "confirmed") {
+        } else if (data.status === "confirmed") {
           return <Chip color="warning">{data.status}</Chip>;
-        } else if (data.status == "completed") {
+        } else if (data.status === "completed") {
           return <Chip color="success">{data.status}</Chip>;
         }
+        break;
       case "actions":
         return (
           <div className="relative flex items-center justify-center gap-2">
             <button content="Details">
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
                 {data.url &&
-                (data.status == "pending" || data.status == "confirmed") ? (
+                (data.status === "pending" || data.status === "confirmed") ? (
                   <Button
                     color="primary"
                     onPress={() => {
@@ -477,7 +557,13 @@ const ProfilePage = () => {
       default:
         return cellValue;
     }
-  };
+  }, [router]);
+
+  // Loading fallback
+  if (isLoading) {
+    console.log("📱 Rendering Profile PageFallback...");
+    return <PageFallback />;
+  }
 
   return (
     <>
@@ -1706,7 +1792,7 @@ const ProfilePage = () => {
                         <></>
                       )}
                       ,
-                      {monthlyPaymentMethodData &&
+                      {/* {monthlyPaymentMethodData &&
                       monthlyPaymentMethodOptions ? (
                         <div className="mb-10 pb-4 border-b">
                           <h3 className="text-4xl font-semibold mb-4">
@@ -1720,7 +1806,7 @@ const ProfilePage = () => {
                         </div>
                       ) : (
                         <></>
-                      )}
+                      )} */}
                     </div>
                   ) : (
                     <></>
