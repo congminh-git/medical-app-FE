@@ -20,9 +20,9 @@ export const getAllDoctors = async () => {
   }
 };
 
-export const getTopNewDoctors = async () => {
+export const getTopNewDoctors = async (ids?: string) => {
   try {
-    const response: any = await apiRequest("/doctors/top-new", "GET");
+    const response: any = await apiRequest(`/doctors/top-new?recommendation=${ids}`, "GET");
 
     if (!response.success) {
       console.log("Something went wrong")

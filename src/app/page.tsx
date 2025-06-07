@@ -28,9 +28,10 @@ import { getAllSymptoms } from "@/services/symptoms/functions";
 import { Select, SelectItem } from "@heroui/select";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import DoctorCard from "@/components/doctors/doctorCard";
 
 function HomeFallback() {
-const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -77,6 +78,7 @@ function HomeContent() {
   const [careSpecialties, setCareSpecialties] = useState<any>([]);
   const [careSymptoms, setCareSymptoms] = useState<any>([]);
   const [careDiseases, setCareDiseases] = useState<any>([]);
+  const [doctorRecommendation, setDoctorRecommendation] = useState<any>([]);
 
   const handleScroll = () => {
     if (newArticlesRef.current) {
@@ -89,6 +91,11 @@ function HomeContent() {
     currentParams.set("diseases", careDiseases);
     currentParams.set("symptoms", careSymptoms);
     router.replace(`?${currentParams.toString()}`);
+  };
+
+  const handleGetTopNewDoctor = async () => {
+    const res = await getTopNewDoctors(doctorRecommendation.join(","));
+    setTopNewDoctors(res);
   };
 
   const handleFetchData = async () => {
@@ -119,12 +126,25 @@ function HomeContent() {
       setAllSymptom(allSymptom);
       setMasterData(masterData);
 
-      const careArticles = searchParams.get("diseases") || searchParams.get("symptoms")
-        ? await getCareArticles(searchParams.get("diseases"), searchParams.get("symptoms"))
-        : await getRandomArticles();
+      const careArticles =
+        searchParams.get("diseases") || searchParams.get("symptoms")
+          ? await getCareArticles(
+              searchParams.get("diseases"),
+              searchParams.get("symptoms")
+            )
+          : await getRandomArticles();
 
       setCareArticles(careArticles);
-      console.log("care: " + careArticles);
+      const firstFourArticles = careArticles.slice(0, 4);
+
+      // Map qua 4 đối tượng này để trích xuất doctor_id
+      const doctorIds = firstFourArticles
+        .map((article: any) => article.doctor_id)
+        .filter(Boolean); // Lọc bỏ các giá trị undefined/null nếu doctor_id không tồn tại
+
+      // Cập nhật state doctorRecommendation với mảng doctor_id vừa tạo
+      const uniqueArr = [...new Set(doctorIds)];
+      setDoctorRecommendation(uniqueArr);
 
       setFetched(true);
     } catch (error) {
@@ -135,6 +155,12 @@ function HomeContent() {
   useEffect(() => {
     handleFetchData();
   }, []);
+
+  useEffect(() => {
+    if (doctorRecommendation.length > 0) {
+      handleGetTopNewDoctor();
+    }
+  }, [doctorRecommendation]);
 
   useEffect(() => {
     if (searchParams.get("diseases") || searchParams.get("symptoms")) {
@@ -332,6 +358,45 @@ function HomeContent() {
           </div>
         </section>
 
+        {/* List doctors */}
+        <section className="w-full max-w-screen-xl py-20 bg-white flex justify-center items-center flex-wrap">
+          <div className="w-full flex justify-between">
+            <h2 className="text-4xl font-bold text-[#2C3E50] text-end flex justify-between items-center">
+              <PlusCircleIcon className="mr-4 h-8 w-8 text-[#58D68D]"></PlusCircleIcon>{" "}
+              Các bác sĩ đáng tin cậy
+            </h2>
+            <Button
+              color="primary"
+              className="text-lg bg-[#F39C12] text-white rounded"
+              size="lg"
+            >
+              <a
+                href="/doctors"
+                className="h-full w-full flex items-center justify-center font-bold"
+              >
+                Xem thêm
+              </a>
+              <ArrowRightIcon className="h-6 w-6" strokeWidth={3} />
+            </Button>
+          </div>
+          <div className="relative flex w-full justify-between items-center rounded-xl mt-4">
+            <div id="slider" className="w-full h-full grid grid-cols-4 gap-4">
+              {
+                <>
+                  {topNewDoctors.map((doctor: any) => {
+                    return (
+                      <DoctorCard
+                        doctor={doctor}
+                        allSpecialties={allSpecialties}
+                      />
+                    );
+                  })}
+                </>
+              }
+            </div>
+          </div>
+        </section>
+
         {/* Message */}
         <section className="w-full max-w-screen-xl py-20 bg-white flex justify-center items-center flex-wrap">
           <div className="w-full flex justify-end">
@@ -392,7 +457,7 @@ function HomeContent() {
                 </span>
               </p>
             </div>
-            <div className="col-span-2 h-full bg-[url('https://medtechpioneers.org/wp-content/uploads/2023/02/healthcare-or-medicalcare.png')] bg-cover bg-center rounded-xl"></div>
+            <div className="col-span-2 h-full bg-[url('https://www.mua.edu/uploads/sites/10/2023/02/istock-482499394.webp')] bg-cover bg-center rounded-xl"></div>
           </div>
         </section>
 
@@ -483,53 +548,6 @@ function HomeContent() {
             )}
           </DrawerContent>
         </Drawer>
-
-        {/* List doctors */}
-        {/* <section className="w-full max-w-screen-xl py-20 bg-white flex justify-center items-center flex-wrap">
-              <div className="w-full flex justify-between">
-                <h2 className="text-4xl font-bold text-[#2C3E50] text-end flex justify-between items-center">
-                  <PlusCircleIcon className="mr-4 h-8 w-8 text-[#58D68D]"></PlusCircleIcon>{" "}
-                  Các bác sĩ mới tham gia cộng đồng
-                </h2>
-                <Button
-                  color="primary"
-                  className="text-lg bg-[#F39C12] text-white rounded"
-                  size="lg"
-                >
-                  <a
-                    href="/doctors"
-                    className="h-full w-full flex items-center justify-center font-bold"
-                  >
-                    Xem thêm
-                  </a>
-                  <ArrowRightIcon className="h-6 w-6" strokeWidth={3} />
-                </Button>
-              </div>
-              <div className="relative flex w-full justify-between items-center border rounded-xl mt-4">
-                <ChevronLeftIcon
-                  className="opacity-50 cursor-pointer hover:opacity-100 h-12 w-12 absolute -left-10"
-                  onClick={slideLeft}
-                />
-                <div
-                  id="slider"
-                  className="w-full h-full flex items-center gap-4 overflow-x-scroll scroll scroll-smooth scrollbar-hide"
-                >
-                  {
-                    <>
-                      {topNewDoctors.map((doctor: any) => {
-                        return (
-                          <DoctorCard doctor={doctor} allSpecialties={allSpecialties}/>
-                        );
-                      })}
-                    </>
-                  }
-                </div>
-                <ChevronRightIcon
-                  className="opacity-50 cursor-pointer hover:opacity-100 h-12 w-12 absolute -right-10"
-                  onClick={slideRight}
-                />
-              </div>
-            </section> */}
       </div>
 
       <Footer />
