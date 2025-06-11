@@ -23,7 +23,7 @@ import {
   updateUserInfo,
 } from "@/services/auth/functions";
 import { useAsyncList } from "@react-stately/data";
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import {
   Drawer,
   DrawerBody,
@@ -32,6 +32,12 @@ import {
   DrawerHeader,
 } from "@heroui/drawer";
 import { Select, SelectItem } from "@heroui/select";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2';
+import { Chip } from "@heroui/chip";
+import { toggleUserStatus } from "@/services/auth/functions";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface User {
   id?: string;
@@ -42,6 +48,16 @@ interface User {
   phone_number: string;
   role: string;
   created_at: string;
+  status: string;
+}
+
+interface ValidationErrors {
+  full_name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  phone_number?: string;
+  role?: string;
 }
 
 interface Column {
@@ -62,6 +78,7 @@ export default function AdminUsersPage() {
     phone_number: "",
     role: "",
     created_at: "",
+    status: "active",
   });
   const [openAddModal, setOpenAddModal] = useState(false);
   const [newUser, setNewUser] = useState<User>({
@@ -72,7 +89,9 @@ export default function AdminUsersPage() {
     phone_number: "",
     role: "",
     created_at: "",
+    status: "active",
   });
+  const [errors, setErrors] = useState<ValidationErrors>({});
   const rowsPerPage = 25;
 
   const fetchData = async () => {
@@ -127,10 +146,43 @@ export default function AdminUsersPage() {
 
   const handleDelete = async (userId: number) => {
     try {
-      await deleteUser(userId); // Call the API to delete the user
-      fetchData(); // Refresh the user list after deletion
+      const result = await Swal.fire({
+        title: 'Bạn có chắc chắn?',
+        text: "Hành động này không thể hoàn tác!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Có, xóa người dùng!',
+        cancelButtonText: 'Hủy'
+      });
+
+      if (result.isConfirmed) {
+        await deleteUser(userId);
+        fetchData();
+        toast.success('Xóa người dùng thành công!', {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      }
     } catch (error) {
       console.error("Failed to delete user:", error);
+      toast.error('Xóa người dùng thất bại!', {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
   };
 
@@ -141,23 +193,132 @@ export default function AdminUsersPage() {
           ([_, value]) => value !== "" && value !== null && value !== undefined
         )
       );
-      await updateUserInfo(userId, filteredInfo); // Call the API to delete the user
-      fetchData(); // Refresh the user list after deletion
+      await updateUserInfo(userId, filteredInfo);
+      fetchData();
+      setOpenUpdateModal(false);
+      setNewInfo({
+        full_name: "",
+        email: "",
+        phone_number: "",
+        role: "",
+        created_at: "",
+        status: "active",
+      });
+      setSelectedUser(null);
+      toast.success('Cập nhật thông tin người dùng thành công!', {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     } catch (error) {
-      console.error("Failed to delete user:", error);
+      console.error("Failed to update user:", error);
+      toast.error('Cập nhật thông tin người dùng thất bại!', {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: ValidationErrors = {};
+    
+    // Validate full name
+    if (!newUser.full_name.trim()) {
+      newErrors.full_name = "Họ tên không được để trống";
+    } else if (newUser.full_name.trim().split(" ").length < 2) {
+      newErrors.full_name = "Họ tên phải có ít nhất 2 từ";
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!newUser.email.trim()) {
+      newErrors.email = "Email không được để trống";
+    } else if (!emailRegex.test(newUser.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+
+    // Validate password
+    if (!newUser.password) {
+      newErrors.password = "Mật khẩu không được để trống";
+    } else if (newUser.password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
+
+    // Validate confirm password
+    if (!newUser.confirmPassword) {
+      newErrors.confirmPassword = "Xác nhận mật khẩu không được để trống";
+    } else if (newUser.password !== newUser.confirmPassword) {
+      newErrors.confirmPassword = "Mật khẩu không khớp";
+    }
+
+    // Validate phone number
+    const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+    if (!newUser.phone_number.trim()) {
+      newErrors.phone_number = "Số điện thoại không được để trống";
+    } else if (!phoneRegex.test(newUser.phone_number)) {
+      newErrors.phone_number = "Số điện thoại không hợp lệ";
+    }
+
+    // Validate role
+    if (!newUser.role) {
+      newErrors.role = "Vui lòng chọn role";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleAdd = async () => {
     try {
-      if(newUser.confirmPassword !== newUser.password) {
-        console.log("Mật khẩu không khớp")
-      } else {
-        await addUser(newUser); // Call the API to delete the user
-        fetchData(); // Refresh the user list after deletion
+      if (validateForm()) {
+        await addUser(newUser);
+        fetchData();
+        setOpenAddModal(false);
+        setNewUser({
+          full_name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          phone_number: "",
+          role: "",
+          created_at: "",
+          status: "active",
+        });
+        setErrors({});
+        toast.success('Thêm người dùng thành công!', {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     } catch (error) {
-      console.error("Failed to delete user:", error);
+      console.error("Failed to add user:", error);
+      toast.error('Thêm người dùng thất bại!', {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
   };
 
@@ -171,12 +332,24 @@ export default function AdminUsersPage() {
     fetchData();
   }, []);
 
+  const handleToggleStatus = async (userId: number) => {
+    try {
+      await toggleUserStatus(userId);
+      fetchData(); // Refresh the list after toggling status
+    } catch (error) {
+      console.error("Failed to toggle user status:", error);
+    }
+  };
+
   const renderUserCell = (data: User, columnKey: keyof User | "actions") => {
     const cellValue = columnKey !== "actions" ? data[columnKey] : undefined;
     switch (columnKey) {
-      case "created_at":
-        const createDate = new Date(cellValue as string);
-        return createDate.toLocaleString();
+      case "status":
+        if (data.status === "active") {
+          return <Chip color="success">Đang hoạt động</Chip>;
+        } else {
+          return <Chip color="danger">Đã vô hiệu hóa</Chip>;
+        }
       case "actions":
         return (
           <div className="relative flex items-center justify-center gap-2">
@@ -187,6 +360,14 @@ export default function AdminUsersPage() {
                   onClick={() => {
                     if (!selectedUser || selectedUser.id != data.id) {
                       setSelectedUser(data);
+                      setNewInfo({
+                        full_name: data.full_name,
+                        email: data.email,
+                        phone_number: data.phone_number,
+                        role: data.role,
+                        created_at: data.created_at,
+                        status: data.status,
+                      });
                       setOpenUpdateModal(true);
                     } else {
                       setSelectedUser(null);
@@ -196,6 +377,7 @@ export default function AdminUsersPage() {
                         phone_number: "",
                         role: "",
                         created_at: "",
+                        status: "active",
                       });
                       setOpenUpdateModal(false);
                     }
@@ -209,13 +391,13 @@ export default function AdminUsersPage() {
               </div>
               <div className="relative group">
                 <button
-                  aria-label="Xóa"
-                  onClick={() => handleDelete(data.id ? parseInt(data.id) : 0)}
+                  aria-label="Kích hoạt/Vô hiệu hóa"
+                  onClick={() => handleToggleStatus(data.id ? parseInt(data.id) : 0)}
                 >
-                  <TrashIcon className="h-5 w-5 text-red-500" />
+                  <ShieldCheckIcon className={`h-5 w-5 ${data.status === 'active' ? 'text-green-500' : 'text-red-500'}`} />
                 </button>
                 <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2">
-                  Xóa
+                  {data.status === 'active' ? 'Vô hiệu hóa' : 'Kích hoạt'}
                 </span>
               </div>
             </div>
@@ -233,6 +415,7 @@ export default function AdminUsersPage() {
     { name: "Số điện thoại", uid: "phone_number" },
     { name: "Role", uid: "role" },
     { name: "Ngày đăng ký", uid: "created_at", sortable: true },
+    { name: "Trạng thái", uid: "status" },
     { name: "ACTIONS", uid: "actions" },
   ];
 
@@ -312,7 +495,7 @@ export default function AdminUsersPage() {
                 </div>
               </>
             ) : (
-              <p>Loading....</p>
+              <LoadingSpinner />
             )}
           </div>
         </div>
@@ -329,11 +512,7 @@ export default function AdminUsersPage() {
                 <Input
                   placeholder="Nhập họ tên..."
                   label="Họ tên"
-                  value={
-                    newInfo.full_name
-                      ? newInfo.full_name
-                      : selectedUser?.full_name
-                  }
+                  value={newInfo.full_name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setNewInfo({
                       ...newInfo,
@@ -345,11 +524,7 @@ export default function AdminUsersPage() {
                 <Input
                   placeholder="Nhập số điện thoại..."
                   label="Số điện thoại"
-                  value={
-                    newInfo.phone_number
-                      ? newInfo.phone_number
-                      : selectedUser?.phone_number
-                  }
+                  value={newInfo.phone_number}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setNewInfo({
                       ...newInfo,
@@ -371,11 +546,12 @@ export default function AdminUsersPage() {
                       phone_number: "",
                       role: "",
                       created_at: "",
+                      status: "active",
                     });
                     setSelectedUser(null);
                   }}
                 >
-                  Close
+                  Đóng
                 </Button>
                 {selectedUser ? (
                   <Button
@@ -386,7 +562,7 @@ export default function AdminUsersPage() {
                       );
                     }}
                   >
-                    Action
+                    Cập nhật
                   </Button>
                 ) : (
                   <></>
@@ -414,8 +590,13 @@ export default function AdminUsersPage() {
                       ...newUser,
                       full_name: e.target.value,
                     });
+                    if (errors.full_name) {
+                      setErrors({ ...errors, full_name: undefined });
+                    }
                   }}
                   className="w-full"
+                  errorMessage={errors.full_name}
+                  isInvalid={!!errors.full_name}
                 />
                 <Input
                   placeholder="Nhập email..."
@@ -426,32 +607,49 @@ export default function AdminUsersPage() {
                       ...newUser,
                       email: e.target.value,
                     });
+                    if (errors.email) {
+                      setErrors({ ...errors, email: undefined });
+                    }
                   }}
                   className="w-full"
+                  errorMessage={errors.email}
+                  isInvalid={!!errors.email}
                 />
                 <Input
                   placeholder="Nhập mật khẩu..."
                   label="Mật khẩu"
+                  type="password"
                   value={newUser.password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setNewUser({
                       ...newUser,
                       password: e.target.value,
                     });
+                    if (errors.password) {
+                      setErrors({ ...errors, password: undefined });
+                    }
                   }}
                   className="w-full"
+                  errorMessage={errors.password}
+                  isInvalid={!!errors.password}
                 />
                 <Input
                   placeholder="Nhập lại mật khẩu..."
                   label="Xác nhận mật khẩu"
+                  type="password"
                   value={newUser.confirmPassword}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setNewUser({
                       ...newUser,
                       confirmPassword: e.target.value,
                     });
+                    if (errors.confirmPassword) {
+                      setErrors({ ...errors, confirmPassword: undefined });
+                    }
                   }}
                   className="w-full"
+                  errorMessage={errors.confirmPassword}
+                  isInvalid={!!errors.confirmPassword}
                 />
                 <Input
                   placeholder="Nhập số điện thoại..."
@@ -462,19 +660,29 @@ export default function AdminUsersPage() {
                       ...newUser,
                       phone_number: e.target.value,
                     });
+                    if (errors.phone_number) {
+                      setErrors({ ...errors, phone_number: undefined });
+                    }
                   }}
                   className="w-full"
+                  errorMessage={errors.phone_number}
+                  isInvalid={!!errors.phone_number}
                 />
                 <Select
                   className="w-full"
                   label="Role"
                   placeholder="Chọn role"
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setNewUser({
                       ...newUser,
                       role: e.target.value,
-                    })
-                  }
+                    });
+                    if (errors.role) {
+                      setErrors({ ...errors, role: undefined });
+                    }
+                  }}
+                  errorMessage={errors.role}
+                  isInvalid={!!errors.role}
                 >
                   <SelectItem key="manage">Manager</SelectItem>
                   <SelectItem key="patient">Patient</SelectItem>
@@ -495,11 +703,12 @@ export default function AdminUsersPage() {
                       phone_number: "",
                       role: "",
                       created_at: "",
+                      status: "active",
                     });
                     setSelectedUser(null);
                   }}
                 >
-                  Close
+                  Đóng
                 </Button>
                 {newUser ? (
                   <Button
@@ -508,7 +717,7 @@ export default function AdminUsersPage() {
                       handleAdd();
                     }}
                   >
-                    Action
+                    Thêm
                   </Button>
                 ) : (
                   <></>

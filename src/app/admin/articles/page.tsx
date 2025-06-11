@@ -20,6 +20,7 @@ import { useAsyncList } from "@react-stately/data";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { getAllSpecialties } from "@/services/specialties/functions";
 import { Select, SelectItem } from "@heroui/select";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface Article {
   id: string;
@@ -128,6 +129,9 @@ export default function AdminArticlesPage() {
       case "created_at":
         const createDate = new Date(cellValue as string);
         return createDate.toLocaleString();
+      case "content":
+        const content = cellValue as string;
+        return content.length > 200 ? `${content.substring(0, 200)}...` : content;
       case "actions":
         return (
           <div className="relative flex items-center justify-center gap-2">
@@ -258,7 +262,7 @@ export default function AdminArticlesPage() {
                 </div>
               </>
             ) : (
-              <p>Loading....</p>
+              <LoadingSpinner />
             )}
           </div>
         </div>

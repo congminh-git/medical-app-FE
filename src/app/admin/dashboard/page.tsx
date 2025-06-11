@@ -14,6 +14,7 @@ import {
 } from "@/services/reUseFunctions";
 import { ChartData, ChartOptions } from "chart.js";
 import { useEffect, useState } from "react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function AdminDashBoardPage() {
   const [allPaymentTransactions, setAllPaymentTransactions] = useState([]);
@@ -41,10 +42,10 @@ export default function AdminDashBoardPage() {
 
   useEffect(() => {
     fetchData();
-  }, []); // Empty dependency array ensures fetchData runs only once on mount
+  }, []);
 
   useEffect(() => {
-    if (allPaymentTransactions.length > 0) {
+    if (allPaymentTransactions?.length > 0) {
       const paymentMethod = getPaymentMethodPieData(allPaymentTransactions);
       setPaymentMethodData(paymentMethod.data);
       setPaymentMethodOptions(paymentMethod.options);
@@ -108,7 +109,7 @@ export default function AdminDashBoardPage() {
                     </div>
                   </div>
                 ) : (
-                  <></>
+                  <LoadingSpinner />
                 )}
               </div>
 
@@ -123,7 +124,7 @@ export default function AdminDashBoardPage() {
                     options={paymentMethodOptions}
                   />
                 ) : (
-                  <p className="text-center">Loading chart...</p>
+                  <LoadingSpinner />
                 )}
               </div>
 
@@ -138,7 +139,7 @@ export default function AdminDashBoardPage() {
                     options={dailyIncomeOptions}
                   />
                 ) : (
-                  <p className="text-center">Loading chart...</p>
+                  <LoadingSpinner />
                 )}
               </div>
 
@@ -153,7 +154,7 @@ export default function AdminDashBoardPage() {
                     options={monthlyIncomeOptions}
                   />
                 ) : (
-                  <p className="text-center">Loading chart...</p>
+                  <LoadingSpinner />
                 )}
               </div>
             </div>

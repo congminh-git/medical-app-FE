@@ -24,6 +24,7 @@
     "@tiptap/starter-kit": "^2.11.5",
     "@types/js-cookie": "^3.0.6",
     "autoprefixer": "^10.4.21",
+    "axios": "^1.9.0",
     "chart.js": "^4.4.8",
     "ckeditor5": "^44.3.0",
     "class-variance-authority": "^0.7.1",
@@ -44,6 +45,7 @@
     "react-quill": "^2.0.0",
     "react-toastify": "^11.0.5",
     "socket.io-client": "^4.8.1",
+    "sweetalert2": "^11.22.0",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {

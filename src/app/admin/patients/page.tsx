@@ -27,6 +27,7 @@ import {
 } from "@heroui/drawer";
 import { updatePatient } from "@/services/patients/functions";
 import { Select, SelectItem } from "@heroui/select";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface Patient {
   user_id?: number;
@@ -475,7 +476,7 @@ export default function AdminPatientsPage() {
                 </Drawer>
               </>
             ) : (
-              <p>Loading....</p>
+              <LoadingSpinner />
             )}
           </div>
         </div>

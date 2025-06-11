@@ -8,7 +8,7 @@ import { getCookie } from "@/services/auth/saveCookie";
 
 export const useAdmin = () => {
   const router = useRouter();
-  const [isAdmin, setIsAdmin] = useState<any>();
+  const [userInfo, setUserInfo] = useState<{role: string}>();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -28,8 +28,8 @@ export const useAdmin = () => {
         } else {
             if (decoded.role != 'manage' && decoded.role != 'admin') {
                 router.push('/')
-                setIsAdmin(decoded);
             }
+            setUserInfo({ role: decoded.role });
         }
       } catch (error) {
         console.error("Lỗi giải mã token:", error);
@@ -41,5 +41,5 @@ export const useAdmin = () => {
     checkAuth();
   }, [router]);
 
-  return isAdmin;
+  return userInfo;
 };

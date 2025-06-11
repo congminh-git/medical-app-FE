@@ -15,9 +15,9 @@ import {
 import { Pagination } from "@heroui/pagination";
 import { Input, Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
-import { getAllDoctors } from "@/services/doctors/functions";
+import { getAllDoctors, toggleDoctorVerification } from "@/services/doctors/functions";
 import { useAsyncList } from "@react-stately/data";
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { getAllSpecialties } from "@/services/specialties/functions";
 import { Chip } from "@heroui/chip";
 import {
@@ -29,6 +29,7 @@ import {
 } from "@heroui/drawer";
 import { updateDoctor } from "@/services/doctors/functions";
 import { Select, SelectItem } from "@heroui/select";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface Doctor {
   user_id?: number;
@@ -40,7 +41,7 @@ interface Doctor {
   workplace: string;
   bio: string;
   consultation_fee: number | "";
-  is_verified: number;
+  is_verified: boolean;
 }
 
 interface Column {
@@ -65,7 +66,7 @@ export default function AdminDoctorsPage() {
     workplace: "",
     bio: "",
     consultation_fee: "",
-    is_verified: 0,
+    is_verified: false,
   });
   const rowsPerPage = 25;
 
@@ -116,6 +117,15 @@ export default function AdminDoctorsPage() {
     }
   };
 
+  const handleToggleVerification = async (userId: number, currentStatus: boolean) => {
+    try {
+      await toggleDoctorVerification(userId, currentStatus);
+      fetchData(); // Refresh the list after toggling verification
+    } catch (error) {
+      console.error("Failed to toggle doctor verification:", error);
+    }
+  };
+
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
   useEffect(() => {
@@ -141,10 +151,10 @@ export default function AdminDoctorsPage() {
         }
         return "";
       case "is_verified":
-        if (data.is_verified == 0) {
-          return <Chip color="danger">Chưa xác thực</Chip>;
-        } else if (data.is_verified == 1) {
+        if (data.is_verified === true) {
           return <Chip color="success">Đã xác thực</Chip>;
+        } else {
+          return <Chip color="danger">Chưa xác thực</Chip>;
         }
       case "specialty_id":
         console.log(
@@ -181,7 +191,7 @@ export default function AdminDoctorsPage() {
                         workplace: "",
                         bio: "",
                         consultation_fee: "",
-                        is_verified: 0,
+                        is_verified: false,
                       });
                       setOpenUpdateModal(false);
                     }
@@ -193,14 +203,17 @@ export default function AdminDoctorsPage() {
                   Chỉnh sửa
                 </span>
               </div>
-              {/* <div className="relative group">
-                <button aria-label="Xóa">
-                  <TrashIcon className="h-5 w-5 text-red-500" />
+              <div className="relative group">
+                <button
+                  aria-label="Xác thực/Hủy xác thực"
+                  onClick={() => handleToggleVerification(data.user_id || 0, data.is_verified)}
+                >
+                  <ShieldCheckIcon className={`h-5 w-5 ${data.is_verified ? 'text-green-500' : 'text-red-500'}`} />
                 </button>
                 <span className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2">
-                  Xóa
+                  {data.is_verified ? 'Hủy xác thực' : 'Xác thực'}
                 </span>
-              </div> */}
+              </div>
             </div>
           </div>
         );
@@ -251,7 +264,7 @@ export default function AdminDoctorsPage() {
               </Button> */}
             </div>
 
-            {allDoctorData.length > 0 && allSpecialties.length > 0 ? (
+            {allDoctorData.length > 0 ? (
               <>
                 <Table
                   isStriped
@@ -485,7 +498,7 @@ export default function AdminDoctorsPage() {
                                 workplace: "",
                                 bio: "",
                                 consultation_fee: "",
-                                is_verified: 0,
+                                is_verified: false,
                               });
                               setSelectedDoctor(null);
                             }}
@@ -515,7 +528,7 @@ export default function AdminDoctorsPage() {
                 </Drawer>
               </>
             ) : (
-              <p>Loading....</p>
+              <LoadingSpinner />
             )}
           </div>
         </div>

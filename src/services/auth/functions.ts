@@ -109,8 +109,6 @@ export const getUserInfo = async (id:number) => {
   }
 };
 
-
-
 export const getUserImage = async (id:number) => {
   try {
     const response: any = await apiRequest(`/users/image/${id}`, "GET");
@@ -135,10 +133,6 @@ export const updateUserInfo = async (id:number, body:any) => {
     if (!response.success) {
       console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
-    } else {
-      toast.success("Lưu thay đổi thành công!", {
-        position: "bottom-right",
-      });
     }
 
     return response.data;
@@ -156,10 +150,6 @@ export const addUser = async (body:any) => {
     if (!response.success) {
       console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
-    } else {
-      toast.success("Tạo user thành công!", {
-        position: "bottom-right",
-      });
     }
 
     return response.data;
@@ -178,10 +168,6 @@ export const deleteUser = async (id:number) => {
       console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
-
-    toast.success("Xóa thành công", {
-      position: "bottom-right",
-    });
     return response.data.data;
   } catch (error) {
     console.log("Something went wrong")
@@ -189,3 +175,49 @@ export const deleteUser = async (id:number) => {
     return null;
   }
 }
+
+export const updateUser = async (id: number, body: any) => {
+  try {
+    const response: any = await apiRequest(`/users/${id}`, "PUT", body);
+
+    if (!response.success) {
+      console.log("Something went wrong")
+      throw new Error(response.error || "Something went wrong");
+    }
+
+    toast.success("Cập nhật thông tin người dùng thành công", {
+      position: "bottom-right",
+    });
+    return response.data;
+  } catch (error) {
+    console.log("Something went wrong")
+    console.error("Lỗi cập nhật:", error);
+    toast.error("Cập nhật thông tin người dùng thất bại", {
+      position: "bottom-right",
+    });
+    return null;
+  }
+};
+
+export const toggleUserStatus = async (id: number) => {
+  try {
+    const response: any = await apiRequest(`/users/${id}/toggle-status`, "PUT", {});
+
+    if (!response.success) {
+      console.log("Something went wrong")
+      throw new Error(response.error || "Something went wrong");
+    }
+
+    toast.success("Cập nhật trạng thái người dùng thành công", {
+      position: "bottom-right",
+    });
+    return response.data;
+  } catch (error) {
+    console.log("Something went wrong")
+    console.error("Lỗi cập nhật trạng thái:", error);
+    toast.error("Cập nhật trạng thái người dùng thất bại", {
+      position: "bottom-right",
+    });
+    return null;
+  }
+};

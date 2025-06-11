@@ -54,22 +54,44 @@ export const getDoctorById = async (id: number) => {
   }
 };
 
-export const updateDoctor = async (id: number, body: any) => {
+export const updateDoctor = async (userId: number, doctorData: any) => {
   try {
-    const response: any = await apiRequest(`/doctors/${id}`, "PUT", body);
+    const response = await apiRequest(`/users/${userId}`, "PUT", {
+      details: doctorData,
+    });
 
     if (!response.success) {
-      console.log("Something went wrong")
+      throw new Error(response.error || "Something went wrong");
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi cập nhật:", error);
+    toast.error("Cập nhật thất bại", {
+      position: "bottom-right",
+    });
+    throw error;
+  }
+};
+
+export const toggleDoctorVerification = async (userId: number, currentStatus: boolean) => {
+  try {
+    const response = await apiRequest(`/doctors/${userId}`, "PUT", {
+      is_verified: !currentStatus
+    });
+
+    if (!response.success) {
       throw new Error(response.error || "Something went wrong");
     }
 
-    toast.success("Cập nhật thành công", {
+    toast.success("Cập nhật trạng thái xác thực thành công", {
       position: "bottom-right",
     });
     return response.data;
   } catch (error) {
-    console.log("Something went wrong")
-    console.error("Lỗi đăng nhập:", error);
-    return null;
+    console.error("Lỗi cập nhật trạng thái xác thực:", error);
+    toast.error("Cập nhật trạng thái xác thực thất bại", {
+      position: "bottom-right",
+    });
+    throw error;
   }
 };

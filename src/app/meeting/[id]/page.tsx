@@ -16,7 +16,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { getAllSymptoms } from "@/services/symptoms/functions";
 import { Button } from "@heroui/button";
 import { getAllDiseaseTypes } from "@/services/diseaseTypes/functions";
-import { getAllDiagnosis } from "@/services/diagnosis/functions";
+import { getAllDiagnoses } from "@/services/diagnosis/functions";
 import { Checkbox } from "@heroui/checkbox";
 import { getAllMedicineTypes } from "@/services/medicineTypes/functions";
 import MedicineTable from "@/components/medicineTable";
@@ -101,7 +101,7 @@ export default function MeetingPage() {
         id ? getAppointmentByID(parseInt(id)) : Promise.resolve(null),
         getAllSymptoms(),
         getAllDiseaseTypes(),
-        getAllDiagnosis(),
+        getAllDiagnoses(),
         getAllMedicineTypes(),
       ]);
 

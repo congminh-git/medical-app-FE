@@ -30,6 +30,7 @@ import {
   DrawerFooter,
   DrawerHeader,
 } from "@heroui/drawer";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface Specialtie {
   id?: string;
@@ -259,7 +260,7 @@ export default function AdminSpecialtiesPage() {
                 </div>
               </>
             ) : (
-              <p>Loading....</p>
+              <LoadingSpinner />
             )}
           </div>
         </div>

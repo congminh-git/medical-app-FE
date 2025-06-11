@@ -5,77 +5,52 @@ import { apiRequest } from "../apiService";
 
 export const getAllMedicineTypes = async () => {
   try {
-    const response: any = await apiRequest("/medicineTypes", "GET");
-
-    if (!response.success) {
-      console.log("Something went wrong")
-      throw new Error(response.error || "Something went wrong");
+    const response = await apiRequest("/medicineTypes", "GET");
+    if (response.success) {
+      return response.data;
     }
-
-    return response.data;
+    throw new Error(response.error || "Failed to fetch medicine types");
   } catch (error) {
-    console.log("Something went wrong")
-    console.error("Lỗi đăng nhập:", error);
-    return null;
+    console.error("Error in getAllMedicineTypes:", error);
+    throw error;
   }
 };
 
 export const deleteMedicineType = async (id: number) => {
   try {
-    const response: any = await apiRequest(`/medicineTypes/${id}`, "DELETE");
-
+    const response = await apiRequest(`/medicineTypes/${id}`, "DELETE");
     if (!response.success) {
-      console.log("Something went wrong")
-      throw new Error(response.error || "Something went wrong");
+      throw new Error(response.error || "Failed to delete medicine type");
     }
-
-    toast.success("Xóa thành công", {
-      position: "bottom-right",
-    });
     return response.data;
   } catch (error) {
-    console.log("Something went wrong")
-    console.error("Lỗi đăng nhập:", error);
-    return null;
+    console.error("Error in deleteMedicineType:", error);
+    throw error;
   }
 };
 
-export const addMedicineType = async (body: any) => {
+export const addMedicineType = async (medicineType: any) => {
   try {
-    const response: any = await apiRequest(`/medicineTypes`, "POST", body);
-
-    if (!response.success) {
-      console.log("Something went wrong")
-      throw new Error(response.error || "Something went wrong");
+    const response = await apiRequest("/medicineTypes", "POST", medicineType);
+    if (response.success) {
+      return response.data;
     }
-
-    toast.success("Cập nhật thành công", {
-      position: "bottom-right",
-    });
-    return response.data;
+    throw new Error(response.error || "Failed to add medicine type");
   } catch (error) {
-    console.log("Something went wrong")
-    console.error("Lỗi đăng nhập:", error);
-    return null;
+    console.error("Error in addMedicineType:", error);
+    throw error;
   }
 };
 
-export const updateMedicineTypeInfo = async (id: number, body: any) => {
+export const updateMedicineTypeInfo = async (id: number, medicineType: any) => {
   try {
-    const response: any = await apiRequest(`/medicineTypes/${id}`, "PUT", body);
-
-    if (!response.success) {
-      console.log("Something went wrong")
-      throw new Error(response.error || "Something went wrong");
+    const response = await apiRequest(`/medicineTypes/${id}`, "PUT", medicineType);
+    if (response.success) {
+      return response.data;
     }
-
-    toast.success("Cập nhật thành công", {
-      position: "bottom-right",
-    });
-    return response.data;
+    throw new Error(response.error || "Failed to update medicine type");
   } catch (error) {
-    console.log("Something went wrong")
-    console.error("Lỗi đăng nhập:", error);
-    return null;
+    console.error("Error in updateMedicineTypeInfo:", error);
+    throw error;
   }
 };

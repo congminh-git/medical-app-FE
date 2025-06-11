@@ -17,6 +17,7 @@ import { Input } from "@heroui/input";
 import { useAsyncList } from "@react-stately/data";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { getAllPaymentTransactions } from "@/services/payment/functions";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface paymentTransaction {
   trans_id: string;
@@ -253,7 +254,7 @@ export default function AdminpaymentTransactionsPage() {
                 </div>
               </>
             ) : (
-              <p>Loading....</p>
+              <LoadingSpinner />
             )}
           </div>
         </div>

@@ -66,7 +66,7 @@ const AllChatContact = () => {
     <div
       className={`${
         pathName === "/login" ? "none" : "fixed"
-      } bottom-10 right-10 w-fit flex items-end gap-2 max-w-[520px]`}
+      } bottom-10 right-10 w-fit flex items-end gap-2 max-w-[520px] z-2`}
     >
       {showChat && (
         <ChatBox

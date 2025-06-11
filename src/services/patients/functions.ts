@@ -28,10 +28,6 @@ export const updatePatient = async (id: number, body: any) => {
       console.log("Something went wrong")
       throw new Error(response.error || "Something went wrong");
     }
-
-    toast.success("Cập nhật thành công", {
-      position: "bottom-right",
-    });
     return response.data;
   } catch (error) {
     console.log("Something went wrong")
