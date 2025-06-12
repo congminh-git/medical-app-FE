@@ -490,13 +490,13 @@ const ProfilePage = () => {
         const createDate = new Date(cellValue);
         return createDate.toLocaleString();
       case "patient":
-        return data.patient.full_name;
+        return data.patient?.full_name || 'N/A';
       case "doctor":
-        return data.doctor.full_name;
+        return data.doctor?.full_name || 'N/A';
       case "consultation":
         return (
           <div className="w-full flex justify-center">
-            {data.consultations[0] && (
+            {data.consultations?.[0] && (
               <Tooltip content="Xem chẩn đoán, đơn thuốc">
                 <button
                   onClick={() => {

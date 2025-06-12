@@ -533,7 +533,7 @@ function HomeContent() {
                       setOpenCareDrawer(false);
                     }}
                   >
-                    Đóng
+                    Bỏ qua
                   </Button>
                   <Button
                     color="primary"
