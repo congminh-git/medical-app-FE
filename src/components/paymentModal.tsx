@@ -70,8 +70,8 @@ const PaymentModal = ({ totalCost, userID, doctorID, onClose, setPaymentStatus }
       }
       setPaymentStatus(false)
     }
-    console.log(body)
     await postSavePaymentTransactions(body)
+    console.log("Close")
     onClose()
   }
 
@@ -103,16 +103,26 @@ const PaymentModal = ({ totalCost, userID, doctorID, onClose, setPaymentStatus }
       
       return await gpayCheckoutFunction(jsonData)
     }
+    return null;
   }
 
   async function onPayment(){ 
-    const option = {
-        language: "vi" // vi or en
-    };
-    const checkoutResponse = await gpayCheckout()
-    galaxyPaySubmitPayment(checkoutResponse.responseData.endpoint, callbackPaymentResult, callbackOnCloseModal, option);
-    const iframePopup:any = document.getElementById("galaxy-pay-upc-popup");
-    iframePopup.style.marginTop = "72px"
+    const checkoutResponse = await gpayCheckout();
+    if (checkoutResponse?.responseData?.endpoint) {
+        // Mở link thanh toán trong tab mới
+        window.open(checkoutResponse.responseData.endpoint, '_blank');
+
+        // Đóng modal thanh toán
+
+        // Ngay lập tức gọi callback với dữ liệu giả định thành công
+        const fakeResultData = {
+            transactionStatus: '200',
+            transactionID: `ASSUMED_SUCCESS_${checkoutResponse.responseData.transactionID || orderID}`
+        };
+        callbackPaymentResult(fakeResultData);
+    } else {
+        console.error("Lỗi khi lấy endpoint thanh toán hoặc chi phí không hợp lệ. Phản hồi:", checkoutResponse);
+    }
   }
 
   useEffect(()=>{
@@ -126,7 +136,7 @@ const PaymentModal = ({ totalCost, userID, doctorID, onClose, setPaymentStatus }
 
   return (
     <div className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-gray-900 bg-opacity-50">
-      <Script src="https://uat-stc.galaxypay.vn/checkout/vietjet/script-modal.js?version=20230710"></Script>
+      <Script src="https://uat-stc.galaxypay.vn/checkout/vietjet/script-modal.js?version=2506200953"></Script>
       <div className="max-w-screen-lg w-full bg-white p-6 rounded-lg">
         <div className="flex justify-between items-start">
           <h3 className="font-bold text-2xl mb-4 ml-2">
